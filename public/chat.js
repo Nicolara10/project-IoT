@@ -8,6 +8,7 @@ const messages = document.getElementById("messages");
 
 let currentUsername = "";
 let typingMessage = null;
+let toxicityModel = null; 
 
 function showMessage(text) {
   const messageElement = document.createElement("p");
@@ -33,6 +34,12 @@ function removeTypingMessage() {
   }
 }
 
+toxicity.load(0.7).then((model) => {
+  toxicityModel = model;
+
+  console.log("Toxicity model loaded");
+});
+
 joinButton.addEventListener("click", () => {
   if (usernameInput.value.trim() === "") {
     alert("Please enter a username");
@@ -44,7 +51,7 @@ joinButton.addEventListener("click", () => {
   showMessage("You joined the chat as " + currentUsername);
 });
 
-messageForm.addEventListener("submit", (event) => {
+messageForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   if (!currentUsername) {
@@ -56,9 +63,26 @@ messageForm.addEventListener("submit", (event) => {
     return;
   }
 
+  let messageToSend = messageInput.value; 
+
+  if (toxicityModel) {
+    const predictions = await toxicityModel.classify([messageInput.value]);
+    let isToxic = false; 
+
+    for (let i = 0; i < predictions.length; i++) {
+      if (predictions[i].results[0].match === true) {
+        isToxic = true;
+      }
+    }
+
+    if (isToxic) {
+      messageToSend = "*****";
+    }
+  }
+
   socket.emit("chat message", {
     username: currentUsername,
-    message: messageInput.value
+    message: messageToSend
   });
 
   messageInput.value = "";
