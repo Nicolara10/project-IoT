@@ -10,7 +10,6 @@ let currentUsername = "";
 let typingMessage = null;
 let toxicityModel = null;
 
-// paste your Firebase config here so the app can connect to your project
 const firebaseConfig = {
   apiKey: "AIzaSyB9iN5sdrOQSpX_TqdxPFV58miMOgQ7-OM",
   authDomain: "web-sockets-chat.firebaseapp.com",
@@ -79,7 +78,7 @@ async function loadOldMessages() {
   }
 }
 
-// load the toxicity model one time when the page first opens
+// load the toxicity model one time when the page first opens 0.7 was tested for better relibality
 toxicity.load(0.7).then((model) => {
   toxicityModel = model;
   console.log("Toxicity model loaded");
